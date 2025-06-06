@@ -1,6 +1,6 @@
 import os
 if not os.path.exists("client.session"):
-    raise FileNotFoundError("❌ client.session ফাইল পাওয়া যায়নি। GitHub Repo-তে এটি থাকতে হবে।")
+    import session_restore
 
 import re
 import gdown
