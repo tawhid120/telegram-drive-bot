@@ -1,7 +1,4 @@
 import os
-if not os.path.exists("client.session"):
-    import session_restore
-
 import re
 import gdown
 import mimetypes
@@ -21,13 +18,23 @@ CHANNEL_OR_GROUP = "@urluploaderx"
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
+# === Secret File Paths (Render compatible) ===
+CLIENT_SESSION_FILE = "/etc/secrets/client.session"
+SERVICE_ACCOUNT_FILE = "/etc/secrets/service_account_key.json"
+
+# Copy secret session to local path (for Pyrogram)
+if os.path.exists(CLIENT_SESSION_FILE):
+    with open(CLIENT_SESSION_FILE, "rb") as src, open("client.session", "wb") as dst:
+        dst.write(src.read())
+
 # === SETUP ===
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot)
 pyro = Client("client", api_id=API_ID, api_hash=API_HASH, phone_number=PHONE_NUMBER)
 app = Flask(__name__)
 
-creds = service_account.Credentials.from_service_account_file("service_account_key.json")
+# Google Drive credentials
+creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
 drive_service = build('drive', 'v3', credentials=creds)
 
 # === UTILITIES ===
@@ -96,11 +103,7 @@ async def drive_handler(message: types.Message):
             await message.reply("❌ ফাইল আইডি পাওয়া যায়নি।")
             continue
 
-        await message.reply(
-    f"☁️ ডাউনলোড শুরু হচ্ছে...\n{link}"
-)
-
-
+        await message.reply(f"☁️ ডাউনলোড শুরু হচ্ছে...\n{link}")
 
         if is_folder_link(link):
             folder_files = list_folder_files(file_id)
@@ -114,7 +117,9 @@ async def drive_handler(message: types.Message):
                     size = os.path.getsize(dest_path)
                     if size > 50 * 1024 * 1024:
                         msg = await pyro.send_document(CHANNEL_OR_GROUP, dest_path)
-                        await message.reply(f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}\nhttps://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
+                        await message.reply(
+                            f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}\n"
+                            f"https://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
                     else:
                         await message.reply_document(dest_path)
                     os.remove(dest_path)
@@ -137,7 +142,9 @@ async def drive_handler(message: types.Message):
             size = os.path.getsize(filepath)
             if size > 50 * 1024 * 1024:
                 msg = await pyro.send_document(CHANNEL_OR_GROUP, filepath)
-                await message.reply(f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}\nhttps://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
+                await message.reply(
+                    f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}\n"
+                    f"https://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
             else:
                 await message.reply_document(filepath)
             os.remove(filepath)
