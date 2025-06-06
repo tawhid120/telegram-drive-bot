@@ -96,8 +96,11 @@ async def drive_handler(message: types.Message):
             await message.reply("❌ ফাইল আইডি পাওয়া যায়নি।")
             continue
 
-        await message.reply("☁️ ডাউনলোড শুরু হচ্ছে.
-" + link)
+        await message.reply(
+    f"☁️ ডাউনলোড শুরু হচ্ছে...\n{link}"
+)
+
+
 
         if is_folder_link(link):
             folder_files = list_folder_files(file_id)
