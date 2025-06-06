@@ -1,6 +1,6 @@
 import os
 if not os.path.exists("client.session"):
-    import session_restore
+    raise FileNotFoundError("❌ client.session ফাইল পাওয়া যায়নি। GitHub Repo-তে এটি থাকতে হবে।")
 
 import re
 import gdown
@@ -96,7 +96,8 @@ async def drive_handler(message: types.Message):
             await message.reply("❌ ফাইল আইডি পাওয়া যায়নি।")
             continue
 
-        await message.reply("☁️ ডাউনলোড শুরু হচ্ছে...\n" + link)
+        await message.reply("☁️ ডাউনলোড শুরু হচ্ছে.
+" + link)
 
         if is_folder_link(link):
             folder_files = list_folder_files(file_id)
@@ -110,7 +111,8 @@ async def drive_handler(message: types.Message):
                     size = os.path.getsize(dest_path)
                     if size > 50 * 1024 * 1024:
                         msg = await pyro.send_document(CHANNEL_OR_GROUP, dest_path)
-                        await message.reply(f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}\nhttps://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
+                        await message.reply(f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}
+https://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
                     else:
                         await message.reply_document(dest_path)
                     os.remove(dest_path)
@@ -133,7 +135,8 @@ async def drive_handler(message: types.Message):
             size = os.path.getsize(filepath)
             if size > 50 * 1024 * 1024:
                 msg = await pyro.send_document(CHANNEL_OR_GROUP, filepath)
-                await message.reply(f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}\nhttp://localhost:3000/stream/{msg.document.file_id}")
+                await message.reply(f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}
+https://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
             else:
                 await message.reply_document(filepath)
             os.remove(filepath)
