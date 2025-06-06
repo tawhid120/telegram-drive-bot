@@ -1,4 +1,7 @@
 import os
+if not os.path.exists("client.session"):
+    import session_restore
+
 import re
 import gdown
 import mimetypes
