@@ -107,8 +107,7 @@ async def drive_handler(message: types.Message):
             await message.reply("❌ ফাইল আইডি পাওয়া যায়নি।")
             continue
 
-        await message.reply("☁️ ডাউনলোড শুরু হচ্ছে.
-" + link)
+        await message.reply("☁️ ডাউনলোড শুরু হচ্ছে." + link)
 
         if is_folder_link(link):
             folder_files = list_folder_files(file_id)
@@ -123,8 +122,8 @@ async def drive_handler(message: types.Message):
                     if size > 50 * 1024 * 1024:
                         msg = await pyro.send_document(CHANNEL_OR_GROUP, dest_path)
                         await message.reply(
-                            f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}
-"
+                            f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}"
+
                             f"https://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
                     else:
                         await message.reply_document(dest_path)
@@ -149,8 +148,7 @@ async def drive_handler(message: types.Message):
             if size > 50 * 1024 * 1024:
                 msg = await pyro.send_document(CHANNEL_OR_GROUP, filepath)
                 await message.reply(
-                    f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}
-"
+                    f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}"
                     f"https://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
             else:
                 await message.reply_document(filepath)
