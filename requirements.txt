@@ -1,0 +1,7 @@
+aiogram
+pyrogram
+tgcrypto
+Flask
+gdown
+google-api-python-client
+google-auth
