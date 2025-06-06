@@ -1,8 +1,10 @@
+
 import os
 import re
 import gdown
 import mimetypes
 import threading
+import shutil
 from aiogram import Bot, Dispatcher, executor, types
 from pyrogram import Client
 from flask import Flask, send_file
@@ -24,8 +26,10 @@ SERVICE_ACCOUNT_FILE = "/etc/secrets/service_account_key.json"
 
 # Copy secret session to local path (for Pyrogram)
 if os.path.exists(CLIENT_SESSION_FILE):
-    with open(CLIENT_SESSION_FILE, "rb") as src, open("client.session", "wb") as dst:
-        dst.write(src.read())
+    shutil.copy(CLIENT_SESSION_FILE, "client.session")
+
+if os.path.exists(SERVICE_ACCOUNT_FILE):
+    shutil.copy(SERVICE_ACCOUNT_FILE, "service_account_key.json")
 
 # === SETUP ===
 bot = Bot(token=BOT_TOKEN)
@@ -34,7 +38,7 @@ pyro = Client("client", api_id=API_ID, api_hash=API_HASH, phone_number=PHONE_NUM
 app = Flask(__name__)
 
 # Google Drive credentials
-creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
+creds = service_account.Credentials.from_service_account_file("service_account_key.json")
 drive_service = build('drive', 'v3', credentials=creds)
 
 # === UTILITIES ===
@@ -82,7 +86,7 @@ def build_filename(user_given, drive_name, mime):
         ext = ".pdf"
     elif not ext:
         ext = ".bin"
-    return f"{drive_name}{ext}" if not drive_name.endswith(ext) else drive_name
+    return f"{drive_name}{ext}" if not drive_name.endswith(ext or "") else drive_name
 
 # === FLASK STREAM SERVER ===
 @app.route('/stream/<file_id>')
@@ -93,7 +97,7 @@ def stream(file_id):
                 return send_file(os.path.join(root, file), as_attachment=True)
     return "File not found", 404
 
-# === HANDLER ===
+# === TELEGRAM HANDLER ===
 @dp.message_handler(lambda msg: "drive.google.com" in msg.text)
 async def drive_handler(message: types.Message):
     links = re.findall(r"https?://drive.google.com[^\s]+", message.text)
@@ -103,7 +107,8 @@ async def drive_handler(message: types.Message):
             await message.reply("❌ ফাইল আইডি পাওয়া যায়নি।")
             continue
 
-        await message.reply(f"☁️ ডাউনলোড শুরু হচ্ছে...\n{link}")
+        await message.reply("☁️ ডাউনলোড শুরু হচ্ছে.
+" + link)
 
         if is_folder_link(link):
             folder_files = list_folder_files(file_id)
@@ -118,7 +123,8 @@ async def drive_handler(message: types.Message):
                     if size > 50 * 1024 * 1024:
                         msg = await pyro.send_document(CHANNEL_OR_GROUP, dest_path)
                         await message.reply(
-                            f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}\n"
+                            f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}
+"
                             f"https://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
                     else:
                         await message.reply_document(dest_path)
@@ -143,7 +149,8 @@ async def drive_handler(message: types.Message):
             if size > 50 * 1024 * 1024:
                 msg = await pyro.send_document(CHANNEL_OR_GROUP, filepath)
                 await message.reply(
-                    f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}\n"
+                    f"🔗 বড় ফাইল এর chrome লিংক: (@urluploaderx এই গ্রুপে আপলোড করা) {filename}
+"
                     f"https://telegram-drive-bot.onrender.com/stream/{msg.document.file_id}")
             else:
                 await message.reply_document(filepath)
@@ -151,7 +158,7 @@ async def drive_handler(message: types.Message):
         except Exception as e:
             await message.reply(f"❌ ডাউনলোডে সমস্যা: {str(e)}")
 
-# === START ===
+# === ENTRY POINT ===
 def run_server():
     app.run(host="0.0.0.0", port=3000)
 
