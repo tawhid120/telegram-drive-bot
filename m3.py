@@ -6,13 +6,13 @@ from telethon import TelegramClient, events
 from telethon.errors.rpcerrorlist import FloodWaitError, UserBannedInChannelError, ChatWriteForbiddenError
 
 # --- Account 1 Credentials ---
-api_id_1 = 20193909
-api_hash_1 = '82cd035fc1eb439bda68b2bfc75a57cb'
+api_id_1 = 
+api_hash_1 = ''
 session_name_1 = 'session_account_1'
 
 # --- Account 2 Credentials ---
-api_id_2 = 25285115
-api_hash_2 = '66d1f279980833bb11a7efb8e49198d6'
+api_id_2 = 
+api_hash_2 = ''
 session_name_2 = 'session_account_2'
 
 # --- List of public group usernames to monitor ---
